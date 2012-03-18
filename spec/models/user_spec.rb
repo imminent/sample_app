@@ -9,6 +9,7 @@
 #  updated_at      :datetime        not null
 #  password_digest :string(255)
 #  remember_token  :string(255)
+#  admin           :boolean         default(FALSE)
 #
 
 require 'spec_helper'
@@ -26,9 +27,17 @@ describe User do
 	it { should respond_to :password }
 	it { should respond_to :password_confirmation }
 	it { should respond_to :remember_token }
+	it { should respond_to :admin }
 	it { should respond_to :authenticate }
 
 	it { should be_valid }
+	it { should_not be_admin }
+
+	describe "witn admin attribute set to 'true'" do
+		before { @user.toggle! :admin }
+
+		it { should be_admin }
+	end
 
 	describe "when name is not present" do
 		before { @user.name = " " }
