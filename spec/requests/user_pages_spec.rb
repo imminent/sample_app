@@ -95,12 +95,18 @@ describe "User pages" do
       before(:all) { 30.times { FactoryGirl.create :user } }
       after(:all)  { User.delete_all }
 
+      let(:first_page)  { User.paginate page: 1 }
+      let(:second_page) { User.paginate page: 2 }
+
       it { should have_link 'Next' }
       it { should have_link '2' }
 
       it { should list_each_user }
 
       it { should_not have_link 'delete' }
+
+      it { should list_the_first_page_of_users }
+      it { should_not list_the_second_page_of_users }
 
       describe "as an admin user" do
         let(:admin) { FactoryGirl.create :admin }

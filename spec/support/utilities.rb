@@ -25,7 +25,7 @@ def fill_signup_form_with_valid_information
     fill_in "Name",         with: "Example User"
     fill_in "Email",        with: "user@example.com"
     fill_in "Password",     with: "password"
-    fill_in "Confirmation", with: "password"
+    fill_in "Confirm Password", with: "password"
 end
 
 def valid_update user, update = { }
@@ -53,6 +53,12 @@ RSpec::Matchers.define :have_success_message do |message|
 	end
 end
 
+RSpec::Matchers.define :have_notice do |message|
+	match do |page|
+		page.should have_selector 'div.alert.alert-notice', text: message
+	end
+end
+
 RSpec::Matchers.define :list_each_user do
 	match do |page|
 		User.all[0..2].each do |user|
@@ -65,4 +71,28 @@ RSpec::Matchers.define :be_able_to_delete_another_user do
 	match do |page|
 		expect { page.click_link 'delete' }.to change(User, :count).by(-1)
 	end
+end
+
+RSpec::Matchers.define :have_user_specific_links do
+	match do |page|
+		page.should have_link 'Users',    href: users_path
+		page.should have_link 'Profile',  href: user_path(user)
+		page.should have_link 'Settings', href: edit_user_path(user)
+	end
+end
+
+RSpec::Matchers.define :list_the_first_page_of_users do
+	match do |page|
+		first_page.each do |user|
+          page.should have_selector 'li', text: user.name
+        end
+    end
+end
+
+RSpec::Matchers.define :list_the_second_page_of_users do
+	match do |page|
+		second_page.each do |user|
+          page.should have_selector 'li', text: user.name
+        end
+    end
 end
