@@ -41,6 +41,15 @@ def setup_test_users
 	FactoryGirl.create :user, name: "Ben", email: "ben@example.com"
 end
 
+def write_a_micropost
+	fill_in 'micropost_content', with: "Lorem ipsum"
+end
+
+def create_a_couple_microposts_for user
+	FactoryGirl.create :micropost, user: user, content: "Lorem ipsum"
+	FactoryGirl.create :micropost, user: user, content: "Dolor sit amet"
+end
+
 RSpec::Matchers.define :have_error_message do |message|
 	match do |page|
 		page.should have_selector 'div.alert.alert-error', text: message
@@ -95,4 +104,28 @@ RSpec::Matchers.define :list_the_second_page_of_users do
           page.should have_selector 'li', text: user.name
         end
     end
+end
+
+RSpec::Matchers.define :have_microposts_in_the_right_order do
+	match do |user|
+		user.microposts.should == [newer_micropost, older_micropost]
+	end
+end
+
+RSpec::Matchers.define :destroy_microposts_associated_with_destroyed_user do
+	match do |user|
+		microposts = user.microposts
+		user.destroy
+		microposts.each do |micropost|
+			Micropost.find_by_id(micropost.id).should be_nil
+		end
+	end
+end 
+
+RSpec::Matchers.define :render_their_feed do
+	match do |page|
+		user.feed.each do |item|
+			page.should have_selector "li##{item.id}", text: item.content
+		end
+	end
 end

@@ -88,6 +88,20 @@ describe "Authentication" do
 					end
 				end
 			end
+
+			describe "in the Microposts controller" do
+
+				describe "submitting to the create action" do
+					before { post microposts_path }
+					specify { response.should redirect_to signin_path }
+				end
+
+				describe "submitting to the destroy action" do
+					let(:micropost) { FactoryGirl.create :micropost }
+					before { delete micropost_path micropost}
+					specify { response.should redirect_to signin_path }
+				end
+			end
 		end
 
 		describe "as wrong user" do
@@ -122,8 +136,9 @@ describe "Authentication" do
 			before { sign_in admin }
 
 			describe "submitting a DELETE request to the Users#destroy action on self" do
-				before { delete user_path admin }
-				it { should have_notice "Can't destroy yourself" }
+				it "should not change the number of users" do
+					expect { delete user_path admin }.not_to change(User, :count)
+				end
 			end
 		end
 
