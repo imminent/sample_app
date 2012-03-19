@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
-  before_filter :signed_in_user,     only: [:index, :edit, :update]
+  before_filter :signed_in_user,     only: [:index, :edit, :update, 
+                                            :following, :followers]
   before_filter :correct_user,       only: [:edit, :update]
   before_filter :admin_user,         only: :destroy
 
@@ -23,7 +24,7 @@ class UsersController < ApplicationController
       @user = User.new params[:user]
       if @user.save
         flash[:success] = "Welcome to the Sample App!"
-        sign_in @user
+        sign_into_session @user, permantently: false
         redirect_to @user
       else
         render 'new'
@@ -37,7 +38,7 @@ class UsersController < ApplicationController
   def update
     if @user.update_attributes params[:user]
       flash[:success] = "Profile updated"
-      sign_in @user
+      sign_into_session @user, permantently: cookies[:remember_token].nil?
       redirect_to @user
     else
       render 'edit'
@@ -58,6 +59,20 @@ class UsersController < ApplicationController
       redirect_to users_path, notice: "Can't destroy yourself"
     end
   end
+
+  def following
+    @title = "Following"
+    @user  = User.find params[:id]
+    @users = @user.followed_users.paginate page: params[:page]
+    render 'show_follow'
+  end
+
+  def followers
+    @title = "Followers"
+    @user  = User.find params[:id]
+    @users = @user.followers.paginate page: params[:page]
+    render 'show_follow'   
+  end 
 
   private
 
