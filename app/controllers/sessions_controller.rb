@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
 			sign_into_session user, permanently: params[:remember_me]
 			redirect_back_or user
 		else
-			flash.now[:error] = 'Invalid email/password combination' # Not quite right!
+			flash.now[:error] = 'Invalid email/password combination'
 			render 'new'
 		end
 	end
